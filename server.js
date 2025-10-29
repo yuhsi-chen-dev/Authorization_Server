@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 
 import tokenRouter from "./routes/token.js"
 import authorizeRouter from "./routes/authorize.js"
+import loginRouter from "./routes/login.js"
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/oauth", tokenRouter)
 app.use("/", authorizeRouter)
+app.use("/", loginRouter)
 
 app.listen(PORT, () => {
   console.log(`Authorization Server running on http://localhost:${PORT}`)
