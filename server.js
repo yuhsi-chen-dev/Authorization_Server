@@ -6,6 +6,7 @@ import tokenRouter from "./routes/token.js"
 import authorizeRouter from "./routes/authorize.js"
 import loginRouter from "./routes/login.js"
 import consentRouter from "./routes/consent.js"
+import logoutRouter from "./routes/logout.js"
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/oauth", tokenRouter)
+app.use("/", logoutRouter)
 app.use("/", authorizeRouter)
 app.use("/", loginRouter)
 app.use("/", consentRouter)
