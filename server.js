@@ -2,11 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 import cors from "cors"
 
-import tokenRouter from "./routes/token.js"
-import authorizeRouter from "./routes/authorize.js"
-import loginRouter from "./routes/login.js"
-import consentRouter from "./routes/consent.js"
-import logoutRouter from "./routes/logout.js"
+import routes from './routes/index.js'
 
 dotenv.config()
 
@@ -22,15 +18,7 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.get("/", (req, res) => {
-  res.json({ status: "OK" })
-})
-
-app.use("/oauth", tokenRouter)
-app.use("/", logoutRouter)
-app.use("/", authorizeRouter)
-app.use("/", loginRouter)
-app.use("/", consentRouter)
+app.use(routes)
 
 app.listen(PORT, () => {
   console.log(`Authorization Server running on http://localhost:${PORT}`)
