@@ -1,7 +1,10 @@
 import Database from "better-sqlite3"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 // Connect DB
-const db = new Database('./auth.sqlite')
+const db = new Database(process.env.DB_PATH)
 
 console.log("Initializing database...")
 
