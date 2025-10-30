@@ -15,6 +15,14 @@ router.get("/v2/logout", (req, res) => {
       return res.status(400).send("Invalid client")
     }
 
+    if (req.session.user) {
+      db.prepare(`
+        UPDATE refresh_token
+        SET revoked = 1
+        WHERE user_id = ?  
+      `).run(req.session.user.id)
+    }
+
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).send("Logout failed")
