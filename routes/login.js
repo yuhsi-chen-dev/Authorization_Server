@@ -1,5 +1,4 @@
 import express from "express"
-import fs from "fs"
 import bcrypt from "bcrypt"
 import db from "../utils/db.js"
 
@@ -45,24 +44,21 @@ router.post("/login", async(req, res) => {
       WHERE client_id = ?
     `).get(client_id)
 
-    let html = fs.readFileSync("./views/consent.html", "utf-8")
-
-    html = html.replace(/{{CLIENT_NAME}}/g, client.client_name)
-
     const scopeArray = scope.split(' ')
     const scopeListHTML = scopeArray
       .map(s => `<li class="list-group-item">${s}</li>`)
       .join('')
 
-    html = html.replace('{{SCOPE_LIST}}', scopeListHTML)
-    html = html.replace('{{CLIENT_ID}}', client_id)
-    html = html.replace('{{REDIRECT_URI}}', redirect_uri)
-    html = html.replace('{{STATE}}', state)
-    html = html.replace('{{CODE_CHALLENGE}}', code_challenge)
-    html = html.replace('{{SCOPE}}', scope)
-    html = html.replace('{{USER_ID}}', user.id)
-
-    res.send(html)
+    res.render('consent', {
+      client_name: client.client_name,
+      scope_list: scopeListHTML,
+      client_id,
+      redirect_uri,
+      state,
+      code_challenge,
+      scope,
+      user_id: user.id
+    })
   } catch (error) {
     return res.status(500).json({
       error: "server_error",
