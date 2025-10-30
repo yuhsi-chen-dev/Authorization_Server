@@ -22,7 +22,7 @@ router.post("/login", async(req, res) => {
       scope
     } = req.body
 
-    if (!email || !password) {
+    if (!email || !password || !client_id || !redirect_uri || !state || !code_challenge || !scope) {
       return res.status(400).send("Missing required parameters")
     }
 
@@ -51,6 +51,10 @@ router.post("/login", async(req, res) => {
       WHERE client_id = ?
     `).get(client_id)
 
+    if (!client) {
+      return res.status(400).send("Invalid client or redirect_uri")
+    }
+    
     renderConsent(req, res, {
       client,
       redirect_uri,
