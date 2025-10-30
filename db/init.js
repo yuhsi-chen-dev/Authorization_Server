@@ -48,5 +48,21 @@ db.exec(`
 `)
 console.log("Authorization codes table created")
 
+// Refresh_tokens
+db.exec(`
+  CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    client_id TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    expires_at INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    revoked INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (client_id) REFERENCES clients(client_id)
+  )
+`)
+console.log("Refresh tokens table created")
+
 db.close()
 console.log("Database initialization complete!")
