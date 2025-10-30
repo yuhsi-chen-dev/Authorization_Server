@@ -1,6 +1,6 @@
 import express from "express"
-import fs from "fs"
 import db from "../utils/db.js"
+import { renderConsent } from "../utils/consent.js"
 
 const router = express.Router()
 
@@ -43,15 +43,24 @@ router.get("/authorize", async(req, res) => {
       return res.status(400).send("Invalid client or redirect_uri")
     }
 
-    let html = fs.readFileSync("./views/login.html", "utf-8")
+    // already login before
+    if (req.session.user) {
+      return renderConsent(req, res, {
+        client,
+        redirect_uri,
+        state,
+        code_challenge,
+        scope
+      })
+    }
 
-    html = html.replace('{{CLIENT_ID}}', client_id)
-    html = html.replace('{{REDIRECT_URI}}', redirect_uri)
-    html = html.replace('{{STATE}}', state)
-    html = html.replace('{{CODE_CHALLENGE}}', code_challenge)
-    html = html.replace('{{SCOPE}}', scope)
-
-    res.send(html)
+    res.render("login", {
+      client_id,
+      redirect_uri,
+      state,
+      code_challenge,
+      scope
+    })
 
   } catch (error) {
     return res.status(500).json({

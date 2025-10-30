@@ -1,7 +1,7 @@
 import express from "express"
-import fs from "fs"
 import bcrypt from "bcrypt"
 import db from "../utils/db.js"
+import { renderConsent } from "../utils/consent.js"
 
 const router = express.Router()
 
@@ -22,7 +22,7 @@ router.post("/login", async(req, res) => {
       scope
     } = req.body
 
-    if (!email || !password) {
+    if (!email || !password || !client_id || !redirect_uri || !state || !code_challenge || !scope) {
       return res.status(400).send("Missing required parameters")
     }
 
@@ -40,29 +40,28 @@ router.post("/login", async(req, res) => {
       return res.status(401).send("Invalid password")
     }
 
+    // save session
+    req.session.user = {
+      id: user.id,
+      email: user.email
+    }
+
     const client = db.prepare(`
       SELECT * FROM clients
       WHERE client_id = ?
     `).get(client_id)
 
-    let html = fs.readFileSync("./views/consent.html", "utf-8")
-
-    html = html.replace(/{{CLIENT_NAME}}/g, client.client_name)
-
-    const scopeArray = scope.split(' ')
-    const scopeListHTML = scopeArray
-      .map(s => `<li class="list-group-item">${s}</li>`)
-      .join('')
-
-    html = html.replace('{{SCOPE_LIST}}', scopeListHTML)
-    html = html.replace('{{CLIENT_ID}}', client_id)
-    html = html.replace('{{REDIRECT_URI}}', redirect_uri)
-    html = html.replace('{{STATE}}', state)
-    html = html.replace('{{CODE_CHALLENGE}}', code_challenge)
-    html = html.replace('{{SCOPE}}', scope)
-    html = html.replace('{{USER_ID}}', user.id)
-
-    res.send(html)
+    if (!client) {
+      return res.status(400).send("Invalid client or redirect_uri")
+    }
+    
+    renderConsent(req, res, {
+      client,
+      redirect_uri,
+      state,
+      code_challenge,
+      scope
+    })
   } catch (error) {
     return res.status(500).json({
       error: "server_error",
