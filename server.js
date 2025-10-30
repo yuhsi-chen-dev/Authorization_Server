@@ -1,6 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import cors from "cors"
+import session from "express-session"
 
 import routes from './routes/index.js'
 
@@ -13,6 +14,16 @@ app.use(cors({
   origin: "http://localhost:5173",
   methods: ["GET", "POST"],
   credentials: true
+}))
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  }
 }))
 
 app.set("view engine", "pug")

@@ -1,6 +1,7 @@
 import express from "express"
 import bcrypt from "bcrypt"
 import db from "../utils/db.js"
+import { renderConsent } from "../utils/consent.js"
 
 const router = express.Router()
 
@@ -39,25 +40,23 @@ router.post("/login", async(req, res) => {
       return res.status(401).send("Invalid password")
     }
 
+    // save session
+    req.session.user = {
+      id: user.id,
+      email: user.email
+    }
+
     const client = db.prepare(`
       SELECT * FROM clients
       WHERE client_id = ?
     `).get(client_id)
 
-    const scopeArray = scope.split(' ')
-    const scopeListHTML = scopeArray
-      .map(s => `<li class="list-group-item">${s}</li>`)
-      .join('')
-
-    res.render('consent', {
-      client_name: client.client_name,
-      scope_list: scopeListHTML,
-      client_id,
+    renderConsent(req, res, {
+      client,
       redirect_uri,
       state,
       code_challenge,
-      scope,
-      user_id: user.id
+      scope
     })
   } catch (error) {
     return res.status(500).json({

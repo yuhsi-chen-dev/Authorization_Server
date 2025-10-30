@@ -1,5 +1,6 @@
 import express from "express"
 import db from "../utils/db.js"
+import { renderConsent } from "../utils/consent.js"
 
 const router = express.Router()
 
@@ -40,6 +41,17 @@ router.get("/authorize", async(req, res) => {
 
     if (!client) {
       return res.status(400).send("Invalid client or redirect_uri")
+    }
+
+    // already login before
+    if (req.session.user) {
+      return renderConsent(req, res, {
+        client,
+        redirect_uri,
+        state,
+        code_challenge,
+        scope
+      })
     }
 
     res.render("login", {
