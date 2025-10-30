@@ -17,7 +17,7 @@ router.get("/v2/logout", (req, res) => {
 
     if (req.session.user) {
       db.prepare(`
-        UPDATE refresh_token
+        UPDATE refresh_tokens
         SET revoked = 1
         WHERE user_id = ?  
       `).run(req.session.user.id)
